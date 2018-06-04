@@ -2,13 +2,20 @@
 ### ````先看效果````
 - ![Alt text](https://github.com/GitHubYYBS/YBSGraduatedScaleTool/blob/master/%E6%BC%94%E7%A4%BA.gif?raw=true)
 
+
+
 #### 设计思路:
 - 1.使用collectionView来实现刻度线的复用 防止 刻度尺量程过大时创建大量的刻度线 
 - 2.第 0 个刻度线(collectionViewCell) 其宽度只是单纯的刻度线宽度 其他刻度线(collectionViewCell)宽度 包含了起间距 并且刻度线布局在了cell的最右侧
 - 3.设计了一个基准线 当滑动距离小于俩刻度间距(物理间距)的一半时 会自动选中前一个刻度(基准线会自动与其刻度线对齐) 反知将选中下一个刻度
 - 4.回调机制 默认会实时回调 只有将(ybs_realTimeCallBackBool = No)时才会在 滚性滚动结束(此时速度为0) 或者 手指拖拽结束 时回调
 
-- 私人定制的属性\
+
+
+
+
+
+#### 通过以下属性你可以设置各种样式
 ````
 /**
     有默认值
@@ -43,6 +50,23 @@
 
 /// 量程-最大值 ->如 365天 - 必须设置
 @property (nonatomic, assign) NSInteger ybs_maxRangeInteger;
+
+````
+
+#### 使用
+````
+YBSGraduatedScaleTool *scleTool = [[YBSGraduatedScaleTool alloc] initWithFrame:CGRectMake(0, 300, SCREEN_WIDTH, 80)];
+    scleTool.backgroundColor = [UIColor whiteColor];
+    scleTool.ybs_maxRangeInteger = 100000;
+    scleTool.ybs_annotationDistanceInteger = 1000;
+    scleTool.ybs_minScaleValueIntegeter = 100;
+    
+    scleTool.ybs_currentScaleValueBlock = ^(NSInteger valueInteger) {
+        NSLog(@"valueInteger = %ld",valueInteger);
+        numLable.text = [NSString stringWithFormat:@"%ld",valueInteger];
+    };
+    
+    [self.view addSubview:scleTool];
 
 ````
 
