@@ -311,7 +311,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "ybs..---Tool";
+				PRODUCT_BUNDLE_IDENTIFIER = .YBS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "0d2789a2-c810-4cd1-80df-8cd1c65d5485";
 				PROVISIONING_PROFILE_SPECIFIER = "czq's mac_development_profile";
@@ -323,6 +323,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 5PL7BMR5SN;
 				INFOPLIST_FILE = "刻度尺Tool/Info.plist";
@@ -330,7 +331,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "ybs..---Tool";
+				PRODUCT_BUNDLE_IDENTIFIER = .YBS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "0d2789a2-c810-4cd1-80df-8cd1c65d5485";
 				PROVISIONING_PROFILE_SPECIFIER = "czq's mac_development_profile";

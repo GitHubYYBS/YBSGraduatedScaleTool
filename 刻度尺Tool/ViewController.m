@@ -35,9 +35,9 @@
     
     YBSGraduatedScaleTool *scleTool = [[YBSGraduatedScaleTool alloc] initWithFrame:CGRectMake(0, 300, SCREEN_WIDTH, 80)];
     scleTool.backgroundColor = [UIColor whiteColor];
-    scleTool.ybs_maxRangeInteger = 100000;
-    scleTool.ybs_annotationDistanceInteger = 1000;
-    scleTool.ybs_minScaleValueIntegeter = 100;
+    scleTool.ybs_maxRangeInteger = 100;
+    scleTool.ybs_annotationDistanceInteger = 10;
+    scleTool.ybs_minScaleValueIntegeter = 1;
     
     scleTool.ybs_currentScaleValueBlock = ^(NSInteger valueInteger) {
         NSLog(@"valueInteger = %ld",valueInteger);
@@ -47,6 +47,12 @@
     
     [self.view addSubview:scleTool];
     
+}
+
+
+
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
 }
 
 

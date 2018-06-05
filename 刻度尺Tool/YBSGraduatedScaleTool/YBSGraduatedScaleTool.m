@@ -93,7 +93,7 @@ typedef NS_ENUM(NSInteger, YBSGraduatedScaleLineType) {
     
     _item = item;
     self.ybs_scaleLineView.backgroundColor = item.ybs_scaleLineColor;
-    self.ybs_scaleLineView.backgroundColor = [UIColor colorWithRed:arc4random_uniform(256) / 255.0f green:arc4random_uniform(256) / 255.0f blue:arc4random_uniform(256) / 255.0f alpha:1];
+//    self.ybs_scaleLineView.backgroundColor = [UIColor colorWithRed:arc4random_uniform(256) / 255.0f green:arc4random_uniform(256) / 255.0f blue:arc4random_uniform(256) / 255.0f alpha:1];
     
     self.ybs_scaleLable.text = (item.ybs_graduatedScaleLineType != YBSGraduatedScaleLineTypeBig)? @"" : item.ybs_scaleBiaoZhuStr;
     self.ybs_scaleLable.textColor = item.ybs_labelLableColor;
@@ -133,6 +133,8 @@ typedef NS_ENUM(NSInteger, YBSGraduatedScaleLineType) {
 @property (nonatomic, weak) UIView *scalLineView;
 /// 基准线
 @property (nonatomic, weak) UIView *ybs_directrixLine;
+/// 占位View
+@property (nonatomic, weak) UIView *ybs_placeholderView;
 /// 上一个基准刻度
 @property (nonatomic, assign) NSInteger ybs_preNextIndexInteger;
 /// 是否有惯性滚动(是否有减速过程 如果有 说明不是纯手指滑动)
@@ -167,8 +169,11 @@ static CGFloat const YBSMinScaleLineMultiple = 0.6; // 最小的刻度 高度 �
         self.ybs_labelLableColor = self.ybs_scaleLineColor;
         self.ybs_labelLableFontFloat = 12;
         self.ybs_minScaleValueIntegeter = 1;
+        self.ybs_showPlaceholderScaleBool = true;
+        self.ybs_scaleLineColor = UIColorFromRGB(0x9B9B9B);
         self.ybs_directrixCenterX = self.width * 0.5;
         self.ybs_realTimeCallBackBool = true;
+        
         
         self.ybs_preNextIndexInteger = -1; // 首次偏移量为0 这样做是为了包着 首次偏移量也可以回调
         
@@ -212,6 +217,13 @@ static CGFloat const YBSMinScaleLineMultiple = 0.6; // 最小的刻度 高度 �
     UIView *ybs_directrixLine = [UIView new];
     ybs_directrixLine.backgroundColor = [UIColor redColor];
     [self addSubview:_ybs_directrixLine = ybs_directrixLine];
+    
+    // 占位View
+    UIView *ybs_placeholderView = [UIView new];
+    ybs_placeholderView.userInteractionEnabled = false;
+    ybs_placeholderView.backgroundColor = [UIColor clearColor];
+    [self addSubview:_ybs_placeholderView = ybs_placeholderView];
+    
 }
 
 
@@ -230,6 +242,7 @@ static CGFloat const YBSMinScaleLineMultiple = 0.6; // 最小的刻度 高度 �
     self.ybs_directrixLine.centerX = self.width * 0.5;
     self.ybs_directrixLine.bottom = self.height;
     
+//    self.ybs_placeholderView.size = self.collectionView.size;
 }
 
 #pragma mark - <UICollectionViewDelegateFlowLayout>
@@ -300,9 +313,19 @@ static CGFloat const YBSMinScaleLineMultiple = 0.6; // 最小的刻度 高度 �
 // startSetOffSetBool 是否调整 -> 只有在拖拽(如果速度 != 0 也不调整) 或者 速度 == 0 时调整
 - (void)ybs_setCollectionViewContentOffset:(UIScrollView *)scrollView startSetOffSetBool:(BOOL)isStartSetOffSetBool{
     
-
     // 所有量程的最大宽度
     CGFloat allCellW = (self.itemArray.count - 1) * (self.ybs_scaleWidthFloat + self.ybs_scaleDistanceFloat) + self.ybs_scaleWidthFloat;
+
+    
+    // 调整占位刻度 由于左右都是公用一个占位刻度 所以 你懂得
+    if ((scrollView.contentOffset.x + self.ybs_directrixCenterX) <= self.ybs_directrixCenterX && self.ybs_placeholderView) {
+        self.ybs_placeholderView.right = (scrollView.contentOffset.x + self.ybs_directrixCenterX) * -1 + self.ybs_directrixCenterX;
+    }else{
+        if (self.ybs_placeholderView)
+        self.ybs_placeholderView.left = allCellW - (scrollView.contentOffset.x + self.ybs_directrixCenterX) + _ybs_directrixCenterX;
+    }
+    
+
     // 所有cell的真正偏移量
     CGFloat contentOffset_X = (scrollView.contentOffset.x + self.ybs_directrixCenterX) <= 0? 0 : ((scrollView.contentOffset.x + self.ybs_directrixCenterX) >= allCellW)? allCellW : scrollView.contentOffset.x + self.ybs_directrixCenterX;
     
@@ -375,6 +398,13 @@ static CGFloat const YBSMinScaleLineMultiple = 0.6; // 最小的刻度 高度 �
     [self ybs_dealwithReloadData];
 }
 
+// 设置刻度线宽度
+- (void)setYbs_scaleWidthFloat:(CGFloat)ybs_scaleWidthFloat{
+    
+    _ybs_scaleWidthFloat = ybs_scaleWidthFloat;
+    [self ybs_dealwithReloadData];
+}
+
 
 // 设置标注间距
 - (void)setYbs_annotationDistanceInteger:(NSInteger)ybs_annotationDistanceInteger{
@@ -398,8 +428,15 @@ static CGFloat const YBSMinScaleLineMultiple = 0.6; // 最小的刻度 高度 �
 - (void)setYbs_directrixCenterX:(CGFloat)ybs_directrixCenterX{
     
     _ybs_directrixCenterX = ybs_directrixCenterX;
-    self.collectionView.contentInset = UIEdgeInsetsMake(0, ybs_directrixCenterX, 0, ybs_directrixCenterX); // collentionView -> 左右各额外 增加滚动区域
 }
+
+// 配置是否显示 左右占位符
+- (void)setYbs_showPlaceholderScaleBool:(BOOL)ybs_showPlaceholderScaleBool{
+    
+    _ybs_showPlaceholderScaleBool = ybs_showPlaceholderScaleBool;
+    if (!ybs_showPlaceholderScaleBool) [self.ybs_placeholderView removeFromSuperview];
+}
+
 
 // 处理模型
 - (void)ybs_dealwithItem{
@@ -431,18 +468,47 @@ static CGFloat const YBSMinScaleLineMultiple = 0.6; // 最小的刻度 高度 �
     }
 }
 
+// 配置 占位View
+- (void)ybs_setYbs_placeholderView{
+    
+    if (!self.ybs_placeholderView) return;
+    
+    NSInteger allPlaceholderLineNum = (self.collectionView.width? self.collectionView.width : self.width) / (self.ybs_scaleDistanceFloat + self.ybs_scaleWidthFloat) + 1;
+    self.ybs_placeholderView.width = 0.001 + allPlaceholderLineNum * (self.ybs_scaleDistanceFloat + self.ybs_scaleWidthFloat) ;
+    self.ybs_placeholderView.height = self.height - 1;
+    
+    
+    for (UIView *subView in self.ybs_placeholderView.subviews) {
+        [subView removeFromSuperview];
+    }
+    
+    for (int i = 0; i <= allPlaceholderLineNum; i++) {
+        
+        NSInteger yuShuInteger = i % self.ybs_annotationDistanceInteger;
+        
+        UIView *lineView = [UIView new];
+        lineView.backgroundColor = self.ybs_scaleLineColor;
+        lineView.width = (i == 0 || i == allPlaceholderLineNum)? 0.001 : self.ybs_scaleWidthFloat;
+        lineView.height = (yuShuInteger == 0)? self.ybs_bigScaleHeight : (yuShuInteger == self.ybs_annotationDistanceInteger * 0.5)? self.ybs_bigScaleHeight * YBSCenterScaleLineMultiple : self.ybs_bigScaleHeight * YBSMinScaleLineMultiple;
+        lineView.left = (self.ybs_scaleDistanceFloat + self.ybs_scaleWidthFloat) * i;
+        lineView.bottom = self.ybs_placeholderView.height;
+        [self.ybs_placeholderView addSubview:lineView];
+    }
+}
+
 - (void)ybs_dealwithReloadData{
     
-    if (!self.collectionView) return;
+    if (!self.collectionView || self.ybs_scaleWidthFloat <= 0 || self.ybs_scaleDistanceFloat <= 0 || self.ybs_maxRangeInteger <= 0) return;
     
+    
+    // 配置模型
     [self ybs_dealwithItem];
+    // 配置 占位View
+    [self ybs_setYbs_placeholderView];
     [self.collectionView reloadData];
     
+    self.collectionView.contentInset = UIEdgeInsetsMake(0, _ybs_directrixCenterX, 0, _ybs_directrixCenterX); // collentionView -> 左右各额外 增加滚动区域
     
-    //
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//         [self.collectionView setContentOffset:CGPointMake(-self.ybs_directrixLine.left, 0) animated:true];
-    });
 }
 
 

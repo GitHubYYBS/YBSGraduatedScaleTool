@@ -44,6 +44,8 @@
 @property (nonatomic, assign) CGFloat ybs_directrixCenterX;
 /// 是否实时回调(NO : 只在速度为0 或 结束拖拽时 回调 ; YES : 实时回调) -> 默认YES
 @property (nonatomic, assign,getter=isybs_realTimeCallBackBool) BOOL ybs_realTimeCallBackBool;
+/// 是否显示左右的补位刻度 -> 默认显示 yes
+@property (nonatomic, assign,getter=isybs_showPlaceholderScaleBool) BOOL ybs_showPlaceholderScaleBool;
 
 /**
  无默认值
